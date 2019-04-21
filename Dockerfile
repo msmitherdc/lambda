@@ -31,7 +31,7 @@ RUN \
 #    make install DESTDIR=/
 
 RUN \
-    wget https://github.com/LASzip/LASzip/releases/download/$LASZIP_VERSION/laszip-src-$LASZIP_VERSION.tar.gz; \
+    wget -nv https://github.com/LASzip/LASzip/releases/download/$LASZIP_VERSION/laszip-src-$LASZIP_VERSION.tar.gz; \
     tar -xzf laszip-src-$LASZIP_VERSION.tar.gz; \
     cd laszip-src-$LASZIP_VERSION;\
     cmake3 -G "Unix Makefiles" \
