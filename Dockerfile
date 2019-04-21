@@ -79,7 +79,7 @@ RUN \
 
 
 RUN \
-    wget http://download.osgeo.org/geos/geos-$GEOS_VERSION.tar.bz2; \
+    wget -nv http://download.osgeo.org/geos/geos-$GEOS_VERSION.tar.bz2; \
     tar xjf geos*bz2; \
     cd geos*; \
     ./configure --prefix=$PREFIX CFLAGS="-O2 -Os"; \
@@ -88,7 +88,7 @@ RUN \
     rm -rf geos*;
 
 RUN \
-    wget http://download.osgeo.org/proj/proj-$PROJ_VERSION.tar.gz; \
+    wget -nv http://download.osgeo.org/proj/proj-$PROJ_VERSION.tar.gz; \
     tar -zvxf proj-$PROJ_VERSION.tar.gz; \
     cd proj-$PROJ_VERSION; \
     ./configure --prefix=$PREFIX; \
@@ -96,7 +96,7 @@ RUN \
     rm -rf proj-$PROJ_VERSION proj-$PROJ_VERSION.tar.gz
 
 RUN \
-    wget https://download.osgeo.org/geotiff/libgeotiff/libgeotiff-$GEOTIFF_VERSION.tar.gz; \
+    wget -nv https://download.osgeo.org/geotiff/libgeotiff/libgeotiff-$GEOTIFF_VERSION.tar.gz; \
     tar -xzvf libgeotiff-$GEOTIFF_VERSION.tar.gz; \
     cd libgeotiff-$GEOTIFF_VERSION; \
     ./configure \
@@ -106,7 +106,7 @@ RUN \
 
 # GDAL
 RUN \
-    wget http://download.osgeo.org/gdal/$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz; \
+    wget -nv http://download.osgeo.org/gdal/$GDAL_VERSION/gdal-$GDAL_VERSION.tar.gz; \
     tar -xzvf gdal-$GDAL_VERSION.tar.gz; \
     cd gdal-$GDAL_VERSION; \
     ./configure \
@@ -124,6 +124,7 @@ RUN \
 RUN \
     git clone https://github.com/PDAL/PDAL.git; \
     cd PDAL; \
+    git checkout ${PDAL_VERSION}; \
     mkdir -p _build; \
     cd _build; \
     cmake3 .. \
@@ -141,6 +142,7 @@ RUN \
         -DBUILD_PLUGIN_RIVLIB=OFF \
         -DBUILD_PLUGIN_PYTHON=OFF \
         -DENABLE_CTEST=OFF \
+        -DLAZPERF_DIR=$PREFIX \
         -DWITH_LAZPERF=ON \
         -DWITH_LASZIP=ON \
         -DWITH_ZLIB=ON \
