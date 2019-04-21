@@ -14,8 +14,7 @@ cp /usr/lib64/libtiff.so.5.2.0 $DEPLOY_DIR/lib/
 cp /usr/lib64/libpng.so.3.49.0 $DEPLOY_DIR/lib/
 cp /usr/lib64/libsqlite3.so.0.8.6 $DEPLOY_DIR/lib/
 rm -rf $DEPLOY_DIR/lib/*.a
-rm -rf $DEPLOY_DIR/lib/libpdal_plugin*
-rm -rf $DEPLOY_DIR/lib/python3.6
+rm -rf $DEPLOY_DIR/lib/python3.7
 
 rsync -ax /build/usr/share/gdal $DEPLOY_DIR/share/
 rsync -ax /build/usr/share/proj $DEPLOY_DIR/share/

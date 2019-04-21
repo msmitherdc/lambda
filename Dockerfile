@@ -1,17 +1,16 @@
-FROM lambci/lambda:build-python3.6 as builder
+FROM lambci/lambda:build-python3.7 as builder
 
 ARG http_proxy
-ARG CURL_VERSION=7.63.0
+ARG CURL_VERSION=7.64.1
 ARG GDAL_VERSION=2.4.0
 ARG GEOS_VERSION=3.7.1
 ARG PROJ_VERSION=5.2.0
-ARG LASZIP_VERSION=3.2.9
+ARG LASZIP_VERSION=3.4.1
 ARG GEOTIFF_VERSION=1.4.3
 ARG PDAL_VERSION=1.9.0
-ARG ZSTD_VERSION=1.3.8
+ARG ZSTD_VERSION=1.4.0
 ARG DESTDIR="/build"
 ARG PREFIX="/usr"
-ARG NPROC=8
 
 RUN \
   rpm --rebuilddb && \
@@ -35,27 +34,26 @@ RUN \
     wget https://github.com/LASzip/LASzip/releases/download/$LASZIP_VERSION/laszip-src-$LASZIP_VERSION.tar.gz; \
     tar -xzf laszip-src-$LASZIP_VERSION.tar.gz; \
     cd laszip-src-$LASZIP_VERSION;\
-    cmake -G "Unix Makefiles" \
+    cmake3 -G "Unix Makefiles" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=$PREFIX \
         -DBUILD_SHARED_LIBS=ON \
         -DBUILD_STATIC_LIBS=OFF \
         -DCMAKE_INSTALL_LIBDIR=lib \
     ; \
-    make -j ${NPROC}; make install; make install DESTDIR= ; cd ..; \
+    make -j$(nproc); make install; make install DESTDIR= ; cd ..; \
     rm -rf laszip-src-${LASZIP_VERSION} laszip-src-$LASZIP_VERSION.tar.gz;
 
 RUN git clone  https://github.com/hobu/laz-perf.git; \
     cd laz-perf; \
     mkdir build; \
     cd build; \
-    cmake .. \
+    cmake3 .. \
         -G "Unix Makefiles" \
         -DCMAKE_INSTALL_PREFIX=$PREFIX \
-        -DCMAKE_INSTALL_LIBDIR=lib \
         -DCMAKE_BUILD_TYPE="Release" \
     ; \
-    make -j ${NPROC}; \
+    make -j$(nproc); \
     make install
 
 RUN mkdir /nitro; cd /nitro; \
@@ -63,12 +61,12 @@ RUN mkdir /nitro; cd /nitro; \
     cd nitro; \
     mkdir build; \
     cd build; \
-    cmake ..\
+    cmake3 ..\
         -G "Unix Makefiles" \
         -DCMAKE_INSTALL_PREFIX=$PREFIX \
         -DCMAKE_INSTALL_LIBDIR=lib \
     ; \
-    make -j ${NPROC}; \
+    make -j$(nproc); \
     make install   
 
 # ZSTD
@@ -76,7 +74,7 @@ RUN \
     mkdir zstd; \
     wget -qO- https://github.com/facebook/zstd/archive/v${ZSTD_VERSION}.tar.gz \
         | tar -xz -C zstd --strip-components=1; cd zstd; \
-    make -j ${NPROC} install PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS=-O1 --silent; \
+    make -j$(nproc) install PREFIX=$PREFIX ZSTD_LEGACY_SUPPORT=0 CFLAGS=-O1 --silent; \
     cd ..; rm -rf zstd
 
 
@@ -85,7 +83,7 @@ RUN \
     tar xjf geos*bz2; \
     cd geos*; \
     ./configure --prefix=$PREFIX CFLAGS="-O2 -Os"; \
-    make -j ${NPROC}; make install; make install DESTDIR= ;\
+    make -j$(nproc); make install; make install DESTDIR= ;\
     cd ..; \
     rm -rf geos*;
 
@@ -94,7 +92,7 @@ RUN \
     tar -zvxf proj-$PROJ_VERSION.tar.gz; \
     cd proj-$PROJ_VERSION; \
     ./configure --prefix=$PREFIX; \
-    make -j ${NPROC}; make install; make install DESTDIR=; cd ..; \
+    make -j$(nproc); make install; make install DESTDIR=; cd ..; \
     rm -rf proj-$PROJ_VERSION proj-$PROJ_VERSION.tar.gz
 
 RUN \
@@ -103,7 +101,7 @@ RUN \
     cd libgeotiff-$GEOTIFF_VERSION; \
     ./configure \
         --prefix=$PREFIX --with-proj=/build/usr ;\
-    make -j ${NPROC}; make install; make install DESTDIR=; cd ..; \
+    make -j$(nproc); make install; make install DESTDIR=; cd ..; \
     rm -rf libgeotiff-$GEOTIFF_VERSION.tar.gz libgeotiff-$GEOTIFF_VERSION;
 
 # GDAL
@@ -120,7 +118,7 @@ RUN \
         --with-geos=$DESTDIR/usr/bin/geos-config \
         --with-hide-internal-symbols=yes \
         CFLAGS="-O2 -Os" CXXFLAGS="-O2 -Os"; \
-    make -j ${NPROC}; make install; make install DESTDIR= ; \
+    make -j$(nproc); make install; make install DESTDIR= ; \
     cd $BUILD; rm -rf gdal-$GDAL_VERSION*
 
 RUN \
@@ -128,7 +126,7 @@ RUN \
     cd PDAL; \
     mkdir -p _build; \
     cd _build; \
-    cmake .. \
+    cmake3 .. \
         -G "Unix Makefiles" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_CXX_FLAGS="-std=c++11" \
@@ -153,7 +151,7 @@ RUN \
         -DWITH_TESTS=OFF \
         -DCMAKE_INSTALL_LIBDIR=lib \
     ; \
-    make -j ${NPROC}; make install; make install DESTDIR= ;
+    make -j$(nproc); make install; make install DESTDIR= ;
 
 RUN rm /build/usr/lib/*.la ; rm /build/usr/lib/*.a
 RUN ldconfig
