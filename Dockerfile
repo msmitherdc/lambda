@@ -1,16 +1,16 @@
 FROM lambci/lambda:build-python3.7 as builder
 
-ARG http_proxy
-ARG CURL_VERSION=7.64.1
-ARG GDAL_VERSION=2.4.0
-ARG GEOS_VERSION=3.7.1
-ARG PROJ_VERSION=5.2.0
-ARG LASZIP_VERSION=3.4.1
-ARG GEOTIFF_VERSION=1.4.3
-ARG PDAL_VERSION=1.9.0
-ARG ZSTD_VERSION=1.4.0
-ARG DESTDIR="/build"
-ARG PREFIX="/usr"
+ENV \
+  CURL_VERSION=7.64.1 \
+  GDAL_VERSION=2.4.0 \
+  GEOS_VERSION=3.7.1 \
+  PROJ_VERSION=5.2.0 \
+  LASZIP_VERSION=3.4.1 \
+  GEOTIFF_VERSION=1.4.3 \
+  PDAL_VERSION=1.9.0 \
+  ZSTD_VERSION=1.4.0 \
+  DESTDIR="/build" \
+  PREFIX="/usr" 
 
 RUN \
   rpm --rebuilddb && \
@@ -44,7 +44,9 @@ RUN \
     make -j$(nproc); make install; make install DESTDIR= ; cd ..; \
     rm -rf laszip-src-${LASZIP_VERSION} laszip-src-$LASZIP_VERSION.tar.gz;
 
-RUN git clone  https://github.com/hobu/laz-perf.git; \
+RUN mkdir laz-perf;\
+    cd laz-perf ;\
+    git clone  https://github.com/hobu/laz-perf.git; \
     cd laz-perf; \
     mkdir build; \
     cd build; \
@@ -115,6 +117,7 @@ RUN \
         --with-tiff=/usr \
         --with-curl=yes \
         --without-python \
+        --with-zstd=$DESTDIR/usr \
         --with-geos=$DESTDIR/usr/bin/geos-config \
         --with-hide-internal-symbols=yes \
         CFLAGS="-O2 -Os" CXXFLAGS="-O2 -Os"; \
@@ -132,7 +135,6 @@ RUN \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_CXX_FLAGS="-std=c++11" \
         -DCMAKE_MAKE_PROGRAM=make \
-        -DBUILD_PLUGIN_HEXBIN=ON \
         -DBUILD_PLUGIN_MRSID=OFF \
         -DBUILD_PLUGIN_NITF=ON \
         -DBUILD_PLUGIN_OCI=OFF \
@@ -142,7 +144,6 @@ RUN \
         -DBUILD_PLUGIN_RIVLIB=OFF \
         -DBUILD_PLUGIN_PYTHON=OFF \
         -DENABLE_CTEST=OFF \
-        -DLAZPERF_DIR=$PREFIX \
         -DWITH_LAZPERF=ON \
         -DWITH_LASZIP=ON \
         -DWITH_ZLIB=ON \
