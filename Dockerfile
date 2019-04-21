@@ -21,13 +21,7 @@ RUN \
     libpng-devel \
     nasm wget tar gcc zlib-devel gcc-c++ curl-devel zip libjpeg-devel rsync git ssh bzip2 automake \
         glib2-devel libtiff-devel pkg-config libcurl-devel;\
-  yum install -y cmake3 --enablerepo=epel ;\
-  curl -LO http://download-ib01.fedoraproject.org/pub/epel/testing/6/x86_64/Packages/n/ninja-build-1.7.2-3.el6.x86_64.rpm ;\
-  rpm -Uvh ninja-build-1.7.2-3.el6.x86_64.rpm
-
-RUN curl -LO https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip ; \
-    unzip ninja-linux.zip;\
-    cp ninja /usr/local/bin
+  yum install -y cmake3 --enablerepo=epel
 
 #RUN \
 #    wget https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz; \
@@ -41,14 +35,14 @@ RUN \
     wget https://github.com/LASzip/LASzip/releases/download/$LASZIP_VERSION/laszip-src-$LASZIP_VERSION.tar.gz; \
     tar -xzf laszip-src-$LASZIP_VERSION.tar.gz; \
     cd laszip-src-$LASZIP_VERSION;\
-    cmake -G Ninja \
+    cmake -G "Unix Makefiles" \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=$PREFIX \
         -DBUILD_SHARED_LIBS=ON \
         -DBUILD_STATIC_LIBS=OFF \
         -DCMAKE_INSTALL_LIBDIR=lib \
     ; \
-    make; make install; make install DESTDIR= ; cd ..; \
+    make -j ${NPROC}; make install; make install DESTDIR= ; cd ..; \
     rm -rf laszip-src-${LASZIP_VERSION} laszip-src-$LASZIP_VERSION.tar.gz;
 
 RUN git clone  https://github.com/hobu/laz-perf.git; \
@@ -56,13 +50,13 @@ RUN git clone  https://github.com/hobu/laz-perf.git; \
     mkdir build; \
     cd build; \
     cmake .. \
-        -G Ninja \
+        -G "Unix Makefiles" \
         -DCMAKE_INSTALL_PREFIX=$PREFIX \
         -DCMAKE_INSTALL_LIBDIR=lib \
         -DCMAKE_BUILD_TYPE="Release" \
     ; \
-    ninja; \
-    ninja install
+    make -j ${NPROC}; \
+    make install
 
 RUN mkdir /nitro; cd /nitro; \
     git clone https://github.com/hobu/nitro; \
@@ -70,12 +64,12 @@ RUN mkdir /nitro; cd /nitro; \
     mkdir build; \
     cd build; \
     cmake ..\
-        -G Ninja \
+        -G "Unix Makefiles" \
         -DCMAKE_INSTALL_PREFIX=$PREFIX \
         -DCMAKE_INSTALL_LIBDIR=lib \
     ; \
-    ninja; \
-    ninja install   
+    make -j ${NPROC}; \
+    make install   
 
 # ZSTD
 RUN \
@@ -91,7 +85,7 @@ RUN \
     tar xjf geos*bz2; \
     cd geos*; \
     ./configure --prefix=$PREFIX CFLAGS="-O2 -Os"; \
-    make; make install; make install DESTDIR= ;\
+    make -j ${NPROC}; make install; make install DESTDIR= ;\
     cd ..; \
     rm -rf geos*;
 
@@ -100,7 +94,7 @@ RUN \
     tar -zvxf proj-$PROJ_VERSION.tar.gz; \
     cd proj-$PROJ_VERSION; \
     ./configure --prefix=$PREFIX; \
-    make; make install; make install DESTDIR=; cd ..; \
+    make -j ${NPROC}; make install; make install DESTDIR=; cd ..; \
     rm -rf proj-$PROJ_VERSION proj-$PROJ_VERSION.tar.gz
 
 RUN \
@@ -109,7 +103,7 @@ RUN \
     cd libgeotiff-$GEOTIFF_VERSION; \
     ./configure \
         --prefix=$PREFIX --with-proj=/build/usr ;\
-    make; make install; make install DESTDIR=; cd ..; \
+    make -j ${NPROC}; make install; make install DESTDIR=; cd ..; \
     rm -rf libgeotiff-$GEOTIFF_VERSION.tar.gz libgeotiff-$GEOTIFF_VERSION;
 
 # GDAL
@@ -126,7 +120,7 @@ RUN \
         --with-geos=$DESTDIR/usr/bin/geos-config \
         --with-hide-internal-symbols=yes \
         CFLAGS="-O2 -Os" CXXFLAGS="-O2 -Os"; \
-    make ; make install; make install DESTDIR= ; \
+    make -j ${NPROC}; make install; make install DESTDIR= ; \
     cd $BUILD; rm -rf gdal-$GDAL_VERSION*
 
 RUN \
@@ -159,7 +153,7 @@ RUN \
         -DWITH_TESTS=OFF \
         -DCMAKE_INSTALL_LIBDIR=lib \
     ; \
-    make ; make install; make install DESTDIR= ;
+    make -j ${NPROC}; make install; make install DESTDIR= ;
 
 RUN rm /build/usr/lib/*.la ; rm /build/usr/lib/*.a
 RUN ldconfig
