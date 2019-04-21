@@ -20,8 +20,8 @@ RUN \
     automake16 \
     libpng-devel \
     nasm wget tar gcc zlib-devel gcc-c++ curl-devel zip libjpeg-devel rsync git ssh bzip2 automake \
-        glib2-devel libtiff-devel pkg-config libcurl-devel;   # required for pkg-config ;\
-  yum install -y cmake3 --enablerepo=epel       
+        glib2-devel libtiff-devel pkg-config libcurl-devel;\
+  yum install -y cmake3 --enablerepo=epel
 
 RUN curl -LO https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip ; \
     unzip ninja-linux.zip;\
