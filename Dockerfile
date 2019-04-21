@@ -21,7 +21,9 @@ RUN \
     libpng-devel \
     nasm wget tar gcc zlib-devel gcc-c++ curl-devel zip libjpeg-devel rsync git ssh bzip2 automake \
         glib2-devel libtiff-devel pkg-config libcurl-devel;\
-  yum install -y cmake3 --enablerepo=epel
+  yum install -y cmake3 --enablerepo=epel ;\
+  curl -LO http://download-ib01.fedoraproject.org/pub/epel/testing/6/x86_64/Packages/n/ninja-build-1.7.2-3.el6.x86_64.rpm ;\
+  rpm -Uvh ninja-build-1.7.2-3.el6.x86_64.rpm
 
 RUN curl -LO https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip ; \
     unzip ninja-linux.zip;\
