@@ -20,20 +20,20 @@ RUN \
     automake16 \
     libpng-devel \
     nasm wget tar gcc zlib-devel gcc-c++ curl-devel zip libjpeg-devel rsync git ssh bzip2 automake \
-        glib2-devel libtiff-devel pkg-config libcurl-devel;   # required for pkg-config
+        glib2-devel libtiff-devel pkg-config libcurl-devel;   # required for pkg-config ;\
+  yum install -y cmake3 --enablerepo=epel       
 
 RUN curl -LO https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip ; \
     unzip ninja-linux.zip;\
     cp ninja /usr/local/bin
 
-RUN \
-    wget https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz; \
-    tar -zxvf cmake-3.13.2.tar.gz; \
-    cd cmake-3.13.2; \
-    ./bootstrap --prefix=/usr ;\
-    make -j $NPROC;\
-    make install DESTDIR=/
-
+#RUN \
+#    wget https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz; \
+#    tar -zxvf cmake-3.13.2.tar.gz; \
+#    cd cmake-3.13.2; \
+#    ./bootstrap --prefix=/usr ;\
+#    make -j $NPROC;\
+#    make install DESTDIR=/
 
 RUN \
     wget https://github.com/LASzip/LASzip/releases/download/$LASZIP_VERSION/laszip-src-$LASZIP_VERSION.tar.gz; \
